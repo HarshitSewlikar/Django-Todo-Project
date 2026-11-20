@@ -79,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME':  'Todo_db',
-        'HOST': 'localhost',
+        'HOST': 'localhost\SQL2022',
         'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
