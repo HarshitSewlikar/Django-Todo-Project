@@ -28,16 +28,19 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate , login
 @require_POST
 def todo_login(request):
+       try:
         data = json.loads(request.body)
-        username = data.get("username")
-        password = data.get("password")
+       except JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"},status=400)
+       username = data.get("username")
+       password = data.get("password")
 
-        user = authenticate(request,username=username,password=password)
-        if user is None:
-            return JsonResponse({"error":"Invalid username or password"},status=401)
+       user = authenticate(request,username=username,password=password)
+       if user is None:
+         return JsonResponse({"error":"Invalid username or password"},status=401)
         
-        login(request,user)
-        return JsonResponse({"username": user.username,"id": user.id})
+       login(request,user)
+       return JsonResponse({"username": user.username,"id": user.id})
 
 #register page 
 
@@ -50,20 +53,23 @@ from django.db import IntegrityError
 User = get_user_model()
 @require_POST
 def todo_register(request):
+   try:
     data = json.loads(request.body)
-    username = data.get("username")
-    email = data.get("email")
-    password = data.get("password")
-    try:
+   except JSONDecodeError:
+    return JsonResponse({"error": "Invalid JSON"},status=400)
+   username = data.get("username")
+   email = data.get("email")
+   password = data.get("password")
+   try:
         validate_password(password)
-    except ValidationError:
-        return JsonResponse({"error": "Invalid password"})
+   except ValidationError:
+        return JsonResponse({"error": "Invalid password"},status=400)
    
-    try:
-       user = User.objects.create_user(username=username,email=email,password=password)
-    except IntegrityError:
-        return JsonResponse({"error": "Username already exists"})
-    return JsonResponse({"username": user.username,"id": user.id})
+   try:
+    user = User.objects.create_user(username=username,email=email,password=password)
+   except IntegrityError:
+      return JsonResponse({"error": "Username already exists"},status=400)
+   return JsonResponse({"username": user.username,"id": user.id})
 
 #logout page 
 
